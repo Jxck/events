@@ -24,7 +24,12 @@
 var isArray = Array.isArray;
 
 function EventEmitter() { }
-exports.EventEmitter = EventEmitter;
+
+global['events'] = { EventEmitter: EventEmitter };
+
+if (typeof module === 'object' && typeof exports === 'object') {
+  exports.EventEmitter = EventEmitter;
+};
 
 // By default EventEmitters will print a warning if more than
 // 10 listeners are added to it. This is a useful default which
