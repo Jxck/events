@@ -19,8 +19,11 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var assert = require('assert');
-var events = require('../events');
+
+if(typeof require === 'function') {
+  var events = require('../events');
+  var assert = require('assert');
+};
 
 var e = new events.EventEmitter();
 

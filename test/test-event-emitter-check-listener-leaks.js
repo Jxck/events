@@ -1,5 +1,7 @@
-var assert = require('assert');
-var events = require('../events');
+if(typeof require === 'function') {
+  var assert = require('assert');
+  var events = require('../events');
+};
 
 var e = new events.EventEmitter();
 
