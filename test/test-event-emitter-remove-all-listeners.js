@@ -38,6 +38,6 @@ var e2 = new events.EventEmitter();
 e2.on('foo', listener);
 e2.on('bar', listener);
 e2.removeAllListeners();
-console.error(e2);
+//console.error(e2);
 assert.deepEqual([], e2.listeners('foo'));
 assert.deepEqual([], e2.listeners('bar'));
