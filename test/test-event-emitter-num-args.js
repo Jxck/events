@@ -20,7 +20,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var assert = require('assert');
-var events = require('events');
+var events = require('../events');
 
 var e = new events.EventEmitter(),
     num_args_emited = [];

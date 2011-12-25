@@ -20,7 +20,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var assert = require('assert');
-var events = require('events');
+var events = require('../events');
 
 var callbacks_called = [];
 
