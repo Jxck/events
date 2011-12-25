@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(global) {
+
 var isArray = Array.isArray;
 
 function EventEmitter() { }
@@ -213,3 +215,5 @@ EventEmitter.prototype.listeners = function(type) {
   }
   return this._events[type];
 };
+
+})(this);
