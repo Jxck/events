@@ -8,9 +8,8 @@ You can use EventEmitter on **both sides** (server-side and client-side) if you 
 
 ## run the same code on both sides
 
-You can use the standard events module when running your code on Node.js.
-And your code will running on browser to.
-
+You can use the EventEmitter of Node.js on Browser.
+And same code can be running on both sides :)
 
 ## how to use
 
@@ -18,6 +17,8 @@ And your code will running on browser to.
 <script src="event.js"></script>
 <script src="path/to/your/code.js"></script>
 ```
+
+```event.js``` exports global ```events``` object which has EventEmitter.
 
 ## running test of this library
 
