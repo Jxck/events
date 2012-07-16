@@ -24,15 +24,26 @@
 
 (function(global) {
 
-var isArray = Array.isArray;
-
-function EventEmitter() { }
-
 global['events'] = { EventEmitter: EventEmitter };
 
 if (typeof module === 'object' && typeof exports === 'object') {
   exports.EventEmitter = EventEmitter;
+} else {
+  exports = {};
 };
+
+var isArray = Array.isArray;
+var domain;
+
+function EventEmitter() {
+  if (exports.usingDomains) {
+    // if there is an active domain, then attach to it.
+    domain = domain || require('domain');
+    if (domain.active && !(this instanceof domain.Domain)) {
+      this.domain = domain.active;
+    }
+  }
+}
 
 // By default EventEmitters will print a warning if more than
 // 10 listeners are added to it. This is a useful default which
@@ -54,6 +65,15 @@ EventEmitter.prototype.emit = function() {
     if (!this._events || !this._events.error ||
         (isArray(this._events.error) && !this._events.error.length))
     {
+      if (this.domain) {
+        var er = arguments[1];
+        er.domain_emitter = this;
+        er.domain = this.domain;
+        er.domain_thrown = false;
+        this.domain.emit('error', er);
+        return false;
+      }
+
       if (arguments[1] instanceof Error) {
         throw arguments[1]; // Unhandled 'error' event
       } else {
@@ -68,6 +88,9 @@ EventEmitter.prototype.emit = function() {
   if (!handler) return false;
 
   if (typeof handler == 'function') {
+    if (this.domain) {
+      this.domain.enter();
+    }
     switch (arguments.length) {
       // fast cases
       case 1:
@@ -86,9 +109,15 @@ EventEmitter.prototype.emit = function() {
         for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
         handler.apply(this, args);
     }
+    if (this.domain) {
+      this.domain.exit();
+    }
     return true;
 
   } else if (isArray(handler)) {
+    if (this.domain) {
+      this.domain.enter();
+    }
     var l = arguments.length;
     var args = new Array(l - 1);
     for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
@@ -97,6 +126,9 @@ EventEmitter.prototype.emit = function() {
     for (var i = 0, l = listeners.length; i < l; i++) {
       listeners[i].apply(this, args);
     }
+    if (this.domain) {
+      this.domain.exit();
+    }
     return true;
 
   } else {
@@ -104,8 +136,6 @@ EventEmitter.prototype.emit = function() {
   }
 };
 
-// EventEmitter is defined in src/node_events.cc
-// EventEmitter.prototype.emit() is also defined there.
 EventEmitter.prototype.addListener = function(type, listener) {
   if ('function' !== typeof listener) {
     throw new Error('addListener only takes instances of Function');
@@ -115,7 +145,8 @@ EventEmitter.prototype.addListener = function(type, listener) {
 
   // To avoid recursion in the case that type == "newListeners"! Before
   // adding it to the listeners, first emit "newListeners".
-  this.emit('newListener', type, listener);
+  this.emit('newListener', type, typeof listener.listener === 'function' ?
+            listener.listener : listener);
 
   if (!this._events[type]) {
     // Optimize the case of one listener. Don't need the extra array object.
@@ -125,27 +156,29 @@ EventEmitter.prototype.addListener = function(type, listener) {
     // If we've already got an array, just append.
     this._events[type].push(listener);
 
-    // Check for listener leak
-    if (!this._events[type].warned) {
-      var m;
-      if (this._maxListeners !== undefined) {
-        m = this._maxListeners;
-      } else {
-        m = defaultMaxListeners;
-      }
-
-      if (m && m > 0 && this._events[type].length > m) {
-        this._events[type].warned = true;
-        console.error('(node) warning: possible EventEmitter memory ' +
-                      'leak detected. %d listeners added. ' +
-                      'Use emitter.setMaxListeners() to increase limit.',
-                      this._events[type].length);
-        console.trace();
-      }
-    }
   } else {
     // Adding the second element, need to change to array.
     this._events[type] = [this._events[type], listener];
+
+  }
+
+  // Check for listener leak
+  if (isArray(this._events[type]) && !this._events[type].warned) {
+    var m;
+    if (this._maxListeners !== undefined) {
+      m = this._maxListeners;
+    } else {
+      m = defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      console.trace();
+    }
   }
 
   return this;
@@ -193,8 +226,6 @@ EventEmitter.prototype.removeListener = function(type, listener) {
 
     if (position < 0) return this;
     list.splice(position, 1);
-    if (list.length == 0)
-      delete this._events[type];
   } else if (list === listener ||
              (list.listener && list.listener === listener))
   {
