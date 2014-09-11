@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require, process) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -32,7 +34,8 @@ function expect(expected) {
   function listener(name) {
     actual.push(name)
   }
-  return common.mustCall(listener, expected.length);
+  // return common.mustCall(listener, expected.length);
+  return listener;
 }
 
 function listener() {}
@@ -68,7 +71,7 @@ e2.on('bar', listener);
 e2.on('removeListener', expect(['foo', 'bar', 'removeListener']));
 e2.on('removeListener', expect(['foo', 'bar']));
 e2.removeAllListeners();
-console.error(e2);
+// console.error(e2);
 assert.deepEqual([], e2.listeners('foo'));
 assert.deepEqual([], e2.listeners('bar'));
 
@@ -78,3 +81,10 @@ e3.on('removeListener', listener);
 // there exists a removeListener listener, but there exists
 // no listeners for the provided event type
 assert.doesNotThrow(e3.removeAllListeners.bind(e3, 'foo'));
+
+process.emit('exit');
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+}, new events.EventEmitter());

@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -39,4 +41,10 @@ e.emit('error');
 
 process.on('exit', function () {
   assert(errorCatched, 'error got caught');
+});
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
 });

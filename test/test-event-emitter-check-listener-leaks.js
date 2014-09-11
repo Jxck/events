@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -85,3 +87,9 @@ assert.ok(e._events['uno'].hasOwnProperty('warned'));
 
 // chainable
 assert.strictEqual(e, e.setMaxListeners(1));
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});

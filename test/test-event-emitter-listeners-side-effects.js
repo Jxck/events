@@ -20,6 +20,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -59,3 +61,9 @@ assert(fl[0] === assert.fail);
 assert(fl[1] === assert.ok);
 
 console.log('ok');
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});

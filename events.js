@@ -19,6 +19,12 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(module, require) {
+
+if (typeof module.exports === 'undefined') {
+    module.exports = module; // this case must be browser
+}
+
 var domain;
 var util = require('util');
 
@@ -313,3 +319,12 @@ EventEmitter.listenerCount = function(emitter, type) {
     ret = emitter._events[type].length;
   return ret;
 };
+
+module.events = { EventEmitter : module.exports };
+delete module.exports;
+
+})(this, function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});

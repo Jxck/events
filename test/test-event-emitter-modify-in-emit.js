@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -75,3 +77,9 @@ assert.equal(2, e.listeners('foo').length);
 e.emit('foo');
 assert.deepEqual(['callback2', 'callback3'], callbacks_called);
 assert.equal(0, e.listeners('foo').length);
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});

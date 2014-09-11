@@ -20,6 +20,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var events = require('events');
@@ -50,3 +52,9 @@ var e3ListenersCopy = e3.listeners('foo');
 e3.on('foo', listener2);
 assert.deepEqual(e3.listeners('foo'), [listener, listener2]);
 assert.deepEqual(e3ListenersCopy, [listener]);
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});

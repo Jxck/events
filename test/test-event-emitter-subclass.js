@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(function(require) {
+
 var common = require('../common');
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
@@ -67,3 +69,9 @@ var ee2 = new MyEE2();
 ee1.on('x', function () {});
 
 assert.equal(EventEmitter.listenerCount(ee2, 'x'), 0);
+
+})(function require(name) {
+  if (this[name]) {
+    return this[name];
+  }
+});
