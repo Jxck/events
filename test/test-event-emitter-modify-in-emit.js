@@ -1,6 +1,3 @@
-// Copyright (c) 2011 Jxck
-//
-// Originally from node.js (http://nodejs.org)
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,10 +19,9 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if(typeof require === 'function') {
-  var assert = require('assert');
-  var events = require('../events');
-};
+var common = require('../common');
+var assert = require('assert');
+var events = require('events');
 
 var callbacks_called = [];
 

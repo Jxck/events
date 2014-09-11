@@ -1,6 +1,3 @@
-// Copyright (c) 2011 Jxck
-//
-// Originally from node.js (http://nodejs.org)
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,10 +19,9 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if(typeof require === 'function') {
-  var assert = require('assert');
-  var events = require('../events');
-};
+var common = require('../common');
+var assert = require('assert');
+var events = require('events');
 
 var e = new events.EventEmitter();
 var times_hello_emited = 0;
@@ -47,6 +43,23 @@ e.once('foo', remove);
 e.removeListener('foo', remove);
 e.emit('foo');
 
-// process.on('exit', function() {
-//   assert.equal(1, times_hello_emited);
-// });
+process.on('exit', function() {
+  assert.equal(1, times_hello_emited);
+});
+
+var times_recurse_emitted = 0;
+
+e.once('e', function() {
+	e.emit('e');
+	times_recurse_emitted++;
+});
+
+e.once('e', function() {
+	times_recurse_emitted++;
+});
+
+e.emit('e');
+
+process.on('exit', function() {
+  assert.equal(2, times_recurse_emitted);
+});

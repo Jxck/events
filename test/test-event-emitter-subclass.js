@@ -21,28 +21,49 @@
 
 var common = require('../common');
 var assert = require('assert');
-var events = require('events');
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
 
-var e = new events.EventEmitter(),
-    num_args_emited = [];
+util.inherits(MyEE, EventEmitter);
 
-e.on('numArgs', function() {
-  var numArgs = arguments.length;
-  console.log('numArgs: ' + numArgs);
-  num_args_emited.push(numArgs);
+function MyEE(cb) {
+  this.once(1, cb);
+  this.emit(1);
+  this.removeAllListeners();
+  EventEmitter.call(this);
+}
+
+var called = false;
+var myee = new MyEE(function() {
+  called = true;
 });
 
-console.log('start');
 
-e.emit('numArgs');
-e.emit('numArgs', null);
-e.emit('numArgs', null, null);
-e.emit('numArgs', null, null, null);
-e.emit('numArgs', null, null, null, null);
-e.emit('numArgs', null, null, null, null, null);
+util.inherits(ErrorEE, EventEmitter);
+function ErrorEE() {
+  this.emit('error', new Error('blerg'));
+}
+
+assert.throws(function() {
+  new ErrorEE();
+}, /blerg/);
 
 process.on('exit', function() {
-  assert.deepEqual([0, 1, 2, 3, 4, 5], num_args_emited);
+  assert(called);
+  assert.deepEqual(myee._events, {});
+  console.log('ok');
 });
 
 
+function MyEE2() {
+  EventEmitter.call(this);
+}
+
+MyEE2.prototype = new EventEmitter();
+
+var ee1 = new MyEE2();
+var ee2 = new MyEE2();
+
+ee1.on('x', function () {});
+
+assert.equal(EventEmitter.listenerCount(ee2, 'x'), 0);

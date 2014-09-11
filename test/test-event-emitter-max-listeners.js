@@ -1,6 +1,3 @@
-// Copyright (c) 2011 Jxck
-//
-// Originally from node.js (http://nodejs.org)
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,16 +19,15 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if(typeof require === 'function') {
-  var assert = require('assert');
-  var events = require('../events');
-};
+var common = require('../common');
+var assert = require('assert');
+var events = require('events');
 
 var gotEvent = false;
 
-// process.on('exit', function() {
-//   assert(gotEvent);
-// });
+process.on('exit', function() {
+  assert(gotEvent);
+});
 
 var e = new events.EventEmitter();
 
@@ -41,5 +37,17 @@ e.on('maxListeners', function() {
 
 // Should not corrupt the 'maxListeners' queue.
 e.setMaxListeners(42);
+
+assert.throws(function() {
+  e.setMaxListeners(NaN);
+});
+
+assert.throws(function() {
+  e.setMaxListeners(-1);
+});
+
+assert.throws(function() {
+  e.setMaxListeners("and even this");
+});
 
 e.emit('maxListeners');

@@ -1,6 +1,3 @@
-// Copyright (c) 2011 Jxck
-//
-// Originally from node.js (http://nodejs.org)
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,10 +19,21 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if(typeof require === 'function') {
-  var assert = require('assert');
-  var events = require('../events');
-};
+var common = require('../common');
+var assert = require('assert');
+var events = require('events');
+
+
+function expect(expected) {
+  var actual = [];
+  process.on('exit', function() {
+    assert.deepEqual(actual.sort(), expected.sort());
+  });
+  function listener(name) {
+    actual.push(name)
+  }
+  return common.mustCall(listener, expected.length);
+}
 
 function listener() {}
 
@@ -37,6 +45,7 @@ e1.on('baz', listener);
 var fooListeners = e1.listeners('foo');
 var barListeners = e1.listeners('bar');
 var bazListeners = e1.listeners('baz');
+e1.on('removeListener', expect(['bar', 'baz', 'baz']));
 e1.removeAllListeners('bar');
 e1.removeAllListeners('baz');
 assert.deepEqual(e1.listeners('foo'), [listener]);
@@ -55,7 +64,17 @@ assert.notEqual(e1.listeners('baz'), bazListeners);
 var e2 = new events.EventEmitter();
 e2.on('foo', listener);
 e2.on('bar', listener);
+// expect LIFO order
+e2.on('removeListener', expect(['foo', 'bar', 'removeListener']));
+e2.on('removeListener', expect(['foo', 'bar']));
 e2.removeAllListeners();
 console.error(e2);
 assert.deepEqual([], e2.listeners('foo'));
 assert.deepEqual([], e2.listeners('bar'));
+
+var e3 = new events.EventEmitter();
+e3.on('removeListener', listener);
+// check for regression where removeAllListeners throws when
+// there exists a removeListener listener, but there exists
+// no listeners for the provided event type
+assert.doesNotThrow(e3.removeAllListeners.bind(e3, 'foo'));

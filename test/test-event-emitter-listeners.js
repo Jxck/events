@@ -1,3 +1,4 @@
+
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23,26 +24,29 @@ var common = require('../common');
 var assert = require('assert');
 var events = require('events');
 
-var e = new events.EventEmitter(),
-    num_args_emited = [];
+function listener() {}
+function listener2() {}
 
-e.on('numArgs', function() {
-  var numArgs = arguments.length;
-  console.log('numArgs: ' + numArgs);
-  num_args_emited.push(numArgs);
-});
+var e1 = new events.EventEmitter();
+e1.on('foo', listener);
+var fooListeners = e1.listeners('foo');
+assert.deepEqual(e1.listeners('foo'), [listener]);
+e1.removeAllListeners('foo');
+assert.deepEqual(e1.listeners('foo'), []);
+assert.deepEqual(fooListeners, [listener]);
 
-console.log('start');
+var e2 = new events.EventEmitter();
+e2.on('foo', listener);
+var e2ListenersCopy = e2.listeners('foo');
+assert.deepEqual(e2ListenersCopy, [listener]);
+assert.deepEqual(e2.listeners('foo'), [listener]);
+e2ListenersCopy.push(listener2);
+assert.deepEqual(e2.listeners('foo'), [listener]);
+assert.deepEqual(e2ListenersCopy, [listener, listener2]);
 
-e.emit('numArgs');
-e.emit('numArgs', null);
-e.emit('numArgs', null, null);
-e.emit('numArgs', null, null, null);
-e.emit('numArgs', null, null, null, null);
-e.emit('numArgs', null, null, null, null, null);
-
-process.on('exit', function() {
-  assert.deepEqual([0, 1, 2, 3, 4, 5], num_args_emited);
-});
-
-
+var e3 = new events.EventEmitter();
+e3.on('foo', listener);
+var e3ListenersCopy = e3.listeners('foo');
+e3.on('foo', listener2);
+assert.deepEqual(e3.listeners('foo'), [listener, listener2]);
+assert.deepEqual(e3ListenersCopy, [listener]);

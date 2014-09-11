@@ -1,3 +1,4 @@
+
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23,26 +24,38 @@ var common = require('../common');
 var assert = require('assert');
 var events = require('events');
 
-var e = new events.EventEmitter(),
-    num_args_emited = [];
+var EventEmitter = require('events').EventEmitter;
+var assert = require('assert');
 
-e.on('numArgs', function() {
-  var numArgs = arguments.length;
-  console.log('numArgs: ' + numArgs);
-  num_args_emited.push(numArgs);
-});
+var e = new EventEmitter;
+var fl;  // foo listeners
 
-console.log('start');
+fl = e.listeners('foo');
+assert(Array.isArray(fl));
+assert(fl.length === 0);
+assert.deepEqual(e._events, {});
 
-e.emit('numArgs');
-e.emit('numArgs', null);
-e.emit('numArgs', null, null);
-e.emit('numArgs', null, null, null);
-e.emit('numArgs', null, null, null, null);
-e.emit('numArgs', null, null, null, null, null);
+e.on('foo', assert.fail);
+fl = e.listeners('foo');
+assert(e._events.foo === assert.fail);
+assert(Array.isArray(fl));
+assert(fl.length === 1);
+assert(fl[0] === assert.fail);
 
-process.on('exit', function() {
-  assert.deepEqual([0, 1, 2, 3, 4, 5], num_args_emited);
-});
+e.listeners('bar');
+assert(!e._events.hasOwnProperty('bar'));
 
+e.on('foo', assert.ok);
+fl = e.listeners('foo');
 
+assert(Array.isArray(e._events.foo));
+assert(e._events.foo.length === 2);
+assert(e._events.foo[0] === assert.fail);
+assert(e._events.foo[1] === assert.ok);
+
+assert(Array.isArray(fl));
+assert(fl.length === 2);
+assert(fl[0] === assert.fail);
+assert(fl[1] === assert.ok);
+
+console.log('ok');
