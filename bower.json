@@ -5,7 +5,7 @@
   "homepage": "https://github.com/jxck/events",
   "description": "browser porting of events.js in node.js",
   "keywords": [
-    "events""
+    "events"
   ],
   "authors": [
     "Jxck"
