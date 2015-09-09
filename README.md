@@ -1,3 +1,5 @@
+**CAUTION**: no plan to support node.js v4.0. and also this project stopped maintaining now, and will end of life at 2015/10. use [browserify](http://browserify.org/) instead.
+
 # event.js
 
 event.js is a port of the Node.js standard events library for the browser.
